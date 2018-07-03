@@ -19,48 +19,51 @@ const defaultMapStateToProps = (state = {}) => Object.assign({
     }
 });
 
-const defaultMapMediaElToProps = (mediaEl) => ({
-    mediaEl
+const defaultMapVideoElToProps = (videoEl) => ({
+    videoEl
 });
 
 const defaultMergeProps = (
     stateProps = {},
-    mediaElProps = {},
+    videoElProps = {},
     ownProps = {}
-) => Object.assign({}, stateProps, mediaElProps, ownProps);
+) => Object.assign({}, stateProps, videoElProps, ownProps);
 
 export default (
     BaseComponent,
     mapStateToProps = defaultMapStateToProps,
-    mapMediaElToProps = defaultMapMediaElToProps,
+    mapVideoElToProps = defaultMapVideoElToProps,
     mergeProps = defaultMergeProps,
     videoId
 ) => class Video extends Component {
     constructor(props) {
         super(props);
         this.updateState = this.updateState.bind(this);
+        this.getElementAndUpdateState = this.getElementAndUpdateState.bind(this);
         this.state = {};
     }
 
     updateState() {
+        if (!this.videoEl) return;
         this.setState(
             PROPERTIES.reduce((p, c) => {
-                p[c] = this.mediaEl && this.mediaEl[c];
+                p[c] = this.videoEl[c];
                 return p;
             }, {})
         );
     }
 
     bindEventsToUpdateState() {
+        if (!this.videoEl) return;
         EVENTS.forEach(event => {
-          this.mediaEl && this.mediaEl.addEventListener(event.toLowerCase(), this.updateState);
+            this.videoEl.addEventListener(event.toLowerCase(), this.updateState);
         });
 
         TRACKEVENTS.forEach(event => {
             // TODO: JSDom does not have this method on
             // `textTracks`. Investigate so we can test this without this check.
-            this.mediaEl && this.mediaEl.textTracks.addEventListener
-            && this.mediaEl.textTracks.addEventListener(event.toLowerCase(), this.updateState);
+            this.videoEl.textTracks && this.videoEl.textTracks.addEventListener
+            && this.videoEl.textTracks.addEventListener(event.toLowerCase(), this.updateState);
         });
 
         // If <source> elements are used instead of a src attribute then
@@ -68,7 +71,7 @@ export default (
         // Do this manually by listening to the last <source> error event
         // to force an update.
         // https://developer.mozilla.org/en-US/docs/Web/Guide/HTML/Using_HTML5_audio_and_video
-        const sources = this.mediaEl && this.mediaEl.getElementsByTagName('source');
+        const sources = this.videoEl.getElementsByTagName('source');
         if (sources && sources.length) {
             const lastSource = sources[sources.length - 1];
             lastSource.addEventListener('error', this.updateState);
@@ -76,17 +79,18 @@ export default (
     }
 
     unbindEvents() {
+        if (!this.videoEl) return;
         EVENTS.forEach(event => {
-          this.mediaEl && this.mediaEl.removeEventListener(event.toLowerCase(), this.updateState);
+            this.videoEl.removeEventListener(event.toLowerCase(), this.updateState);
         });
         TRACKEVENTS.forEach(event => {
             // TODO: JSDom does not have this method on
             // `textTracks`. Investigate so we can test this without this check.
-            this.mediaEl && this.mediaEl.textTracks.removeEventListener
-            && this.mediaEl.textTracks.removeEventListener(event.toLowerCase(), this.updateState);
+            this.videoEl.textTracks && this.videoEl.textTracks.removeEventListener
+            && this.videoEl.textTracks.removeEventListener(event.toLowerCase(), this.updateState);
         });
 
-        const sources = this.mediaEl && this.mediaEl.getElementsByTagName('source');
+        const sources = this.videoEl.getElementsByTagName('source');
         if (sources && sources.length) {
             const lastSource = sources[sources.length - 1];
             lastSource.removeEventListener('error', this.updateState);
@@ -104,22 +108,24 @@ export default (
     }
 
     componentDidMount() {
-      if (!this.props.mediaId) return;
-      this.mediaEl = document.getElementById(this.props.mediaId);
-      if (this.mediaEl) {
-        this.bindEventsToUpdateState();
-      }
+        if (!this.props.mediaId) return;
+        this.getElementAndUpdateState(this.props.mediaId);
     }
 
     componentDidUpdate(lastProps) {
-      if (!this.props.mediaId) return;
-      if (lastProps.mediaId !== this.props.mediaId) {
-        this.unbindEvents();
-        this.mediaEl = document.getElementById(this.props.mediaId);
-        if (this.mediaEl) {
-          this.bindEventsToUpdateState();
+        if (!this.props.mediaId) return;
+        if (lastProps.mediaId !== this.props.mediaId) {
+            this.unbindEvents();
+            this.getElementAndUpdateState(this.props.mediaId);
         }
-      }
+    }
+
+    getElementAndUpdateState(elementId){
+        const videoEl = document.getElementById(elementId);
+        if (videoEl && (videoEl.nodeName === 'VIDEO' || videoEl.nodeName === 'AUDIO')) {
+            this.videoEl = videoEl;
+            this.bindEventsToUpdateState();
+        }
     }
 
     render() {
@@ -127,8 +133,8 @@ export default (
             this.state,
             this.props
         );
-        const mediaElProps = mapMediaElToProps(
-            this.mediaEl,
+        const videoElProps = mapVideoElToProps(
+            this.videoEl,
             this.state,
             this.props
         );
@@ -137,7 +143,7 @@ export default (
                 <BaseComponent
                     {...mergeProps(
                         stateProps,
-                        mediaElProps,
+                        videoElProps,
                         this.props)} />
             </div>
         );

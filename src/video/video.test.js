@@ -14,9 +14,9 @@ const TestControl = ({ duration }) => {
 };
 
 const TestVideo = ({ video, ...restProps }) => {
-    // Remove `mediaEl` so we do not spread an unsupported
+    // Remove `videoEl` so we do not spread an unsupported
     // prop onto a DOM element.
-    delete restProps.mediaEl;
+    delete restProps.videoEl;
     delete restProps.mediaId;
     return (
         <div>
@@ -43,7 +43,7 @@ describe('video', () => {
             );
         });
 
-        describe('HTMLMediaElement API as props', () => {
+        describe('HTMLVideoElement API as props', () => {
             let testControl;
             beforeEach(() => {
                 component = mount(
@@ -121,21 +121,21 @@ describe('video', () => {
     });
 
     describe('mapping to props', () => {
-        let mediaEl = {};
+        let videoEl = {};
 
         beforeAll(() => {
             component = shallow(
                 <Component mediaId={mediaId} autoPlay />
             );
-            // Emulate mediaEl being present
+            // Emulate videoEl being present
             // e.g. componentDidMount fired.
-            component.instance().mediaEl = mediaEl;
+            component.instance().videoEl = videoEl;
             component.instance().forceUpdate();
         });
 
         beforeEach(() => {
             // Reset spy
-            mediaEl.play = jest.fn();
+            videoEl.play = jest.fn();
         });
 
         it('returns a component with it\'s ownProps', () => {
@@ -143,9 +143,9 @@ describe('video', () => {
                 .toBe(true);
         });
 
-        it('returns a component with a mediaEl prop', () => {
-            expect(component.find(TestVideo).prop('mediaEl'))
-                .toBe(mediaEl);
+        it('returns a component with a videoEl prop', () => {
+            expect(component.find(TestVideo).prop('videoEl'))
+                .toBe(videoEl);
         });
 
         it('returns a component with all of its state on the `video` prop', () => {
@@ -180,7 +180,7 @@ describe('video', () => {
                 .toBe(true);
         });
 
-        it('can map mediaEl to props for creating custom API methods', () => {
+        it('can map videoEl to props for creating custom API methods', () => {
             const Component = video(TestVideo, undefined, (el, state, ownProps) => {
                 return {
                     togglePlay: () => {
@@ -191,29 +191,29 @@ describe('video', () => {
             const component = shallow(
                 <Component autoPlay mediaId={mediaId} testProp="testValue" />
             );
-            component.instance().mediaEl = mediaEl;
+            component.instance().videoEl = videoEl;
             component.instance().forceUpdate();
             component.find(TestVideo).prop('togglePlay')();
-            expect(mediaEl.play).toHaveBeenCalledWith('testValue');
+            expect(videoEl.play).toHaveBeenCalledWith('testValue');
         });
 
-        it('allows mapMediaElToProps to take precedence over mapStateToProps', () => {
+        it('allows mapVideoElToProps to take precedence over mapStateToProps', () => {
             const Component = video(TestVideo, () => ({
                 duplicateKey: 'mapStateToProps'
             }), () => ({
-                duplicateKey: 'mapMediaElToProps'
+                duplicateKey: 'mapVideoElToProps'
             }));
             const component = shallow(
                 <Component mediaId={mediaId} />
             );
-            expect(component.find(TestVideo).prop('duplicateKey')).toBe('mapMediaElToProps');
+            expect(component.find(TestVideo).prop('duplicateKey')).toBe('mapVideoElToProps');
         });
 
-        it('allows ownProps to take precedence over mapMediaElToProps and mapStateToProps', () => {
+        it('allows ownProps to take precedence over mapVideoElToProps and mapStateToProps', () => {
             const Component = video(TestVideo, () => ({
                 duplicateKey: 'mapStateToProps'
             }), () => ({
-                duplicateKey: 'mapMediaElToProps'
+                duplicateKey: 'mapVideoElToProps'
             }));
             const component = shallow(
                 <Component mediaId={mediaId} duplicateKey="ownProps" />
@@ -221,17 +221,17 @@ describe('video', () => {
             expect(component.find(TestVideo).prop('duplicateKey')).toBe('ownProps');
         });
 
-        it('allows cusomtisation of merging ownProps, mapMediaElToProps and mapStateToProps to change the merging precedence', () => {
+        it('allows cusomtisation of merging ownProps, mapVideoElToProps and mapStateToProps to change the merging precedence', () => {
             const Component = video(TestVideo, () => ({
                 duplicateKey: 'mapStateToProps'
             }), () => ({
-                duplicateKey: 'mapMediaElToProps'
-            }), (stateProps, mediaElProps, ownProps) =>
-                Object.assign({}, ownProps, stateProps, mediaElProps));
+                duplicateKey: 'mapVideoElToProps'
+            }), (stateProps, videoElProps, ownProps) =>
+                Object.assign({}, ownProps, stateProps, videoElProps));
             const component = shallow(
                 <Component mediaId={mediaId} duplicateKey="ownProps" />
             );
-            expect(component.find(TestVideo).prop('duplicateKey')).toBe('mapMediaElToProps');
+            expect(component.find(TestVideo).prop('duplicateKey')).toBe('mapVideoElToProps');
         });
     });
 });
