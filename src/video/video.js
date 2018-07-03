@@ -34,7 +34,6 @@ export default (
     mapStateToProps = defaultMapStateToProps,
     mapVideoElToProps = defaultMapVideoElToProps,
     mergeProps = defaultMergeProps,
-    videoId
 ) => class Video extends Component {
         constructor(props) {
             super(props);
@@ -108,15 +107,15 @@ export default (
         }
 
         componentDidMount() {
-            if (!this.props.mediaId) return;
-            this.getElementAndUpdateState(this.props.mediaId);
+            if (!this.props.videoId) return;
+            this.getElementAndUpdateState(this.props.videoId);
         }
 
         componentDidUpdate(lastProps) {
-            if (!this.props.mediaId) return;
-            if (lastProps.mediaId !== this.props.mediaId) {
+            if (!this.props.videoId) return;
+            if (lastProps.videoId !== this.props.videoId) {
                 this.unbindEvents();
-                this.getElementAndUpdateState(this.props.mediaId);
+                this.getElementAndUpdateState(this.props.videoId);
             }
         }
 

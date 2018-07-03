@@ -3,7 +3,7 @@ import { mount, shallow } from 'enzyme';
 import video from './video';
 import { EVENTS } from './constants';
 
-const mediaId = 'test-media';
+const videoId = 'test-video';
 
 const TestControl = ({ duration }) => {
     return (
@@ -17,10 +17,10 @@ const TestVideo = ({ video, ...restProps }) => {
     // Remove `videoEl` so we do not spread an unsupported
     // prop onto a DOM element.
     delete restProps.videoEl;
-    delete restProps.mediaId;
+    delete restProps.videoId;
     return (
         <div>
-            <video id={mediaId} {...restProps}>
+            <video id={videoId} {...restProps}>
                 <source src="1" />
             </video>
             <TestControl {...video} />
@@ -39,7 +39,7 @@ describe('video', () => {
     describe('the wrapped component', () => {
         beforeEach(() => {
             component = mount(
-                <Component mediaId={mediaId} autoPlay />,
+                <Component videoId={videoId} autoPlay />,
             );
         });
 
@@ -47,7 +47,7 @@ describe('video', () => {
             let testControl;
             beforeEach(() => {
                 component = mount(
-                    <Component mediaId={mediaId} autoPlay />,
+                    <Component videoId={videoId} autoPlay />,
                     { attachTo: document.body },
                 );
                 testControl = component.find(TestControl);
@@ -94,7 +94,7 @@ describe('video', () => {
         it('should remove all event listeners from the video element when unmounted', () => {
             const removeEventListenerSpy = jest.fn();
             component = mount(
-                <Component mediaId={mediaId} autoPlay />,
+                <Component videoId={videoId} autoPlay />,
                 { attachTo: document.body }
             );
             const updateState = component.instance().updateState;
@@ -109,7 +109,7 @@ describe('video', () => {
         it('should remove "error" event listener from the source element when unmounted', () => {
             const removeEventListenerSpy = jest.fn();
             component = mount(
-                <Component mediaId={mediaId} autoPlay />,
+                <Component videoId={videoId} autoPlay />,
                 { attachTo: document.body }
             );
             const updateState = component.instance().updateState;
@@ -125,7 +125,7 @@ describe('video', () => {
 
         beforeAll(() => {
             component = shallow(
-                <Component mediaId={mediaId} autoPlay />
+                <Component videoId={videoId} autoPlay />
             );
             // Emulate videoEl being present
             // e.g. componentDidMount fired.
@@ -169,7 +169,7 @@ describe('video', () => {
                 };
             });
             const component = shallow(
-                <Component mediaId={mediaId} autoPlay />
+                <Component videoId={videoId} autoPlay />
             );
             component.setState({
                 paused: true
@@ -189,7 +189,7 @@ describe('video', () => {
                 }
             });
             const component = shallow(
-                <Component autoPlay mediaId={mediaId} testProp="testValue" />
+                <Component autoPlay videoId={videoId} testProp="testValue" />
             );
             component.instance().videoEl = videoEl;
             component.instance().forceUpdate();
@@ -204,7 +204,7 @@ describe('video', () => {
                 duplicateKey: 'mapVideoElToProps'
             }));
             const component = shallow(
-                <Component mediaId={mediaId} />
+                <Component videoId={videoId} />
             );
             expect(component.find(TestVideo).prop('duplicateKey')).toBe('mapVideoElToProps');
         });
@@ -216,7 +216,7 @@ describe('video', () => {
                 duplicateKey: 'mapVideoElToProps'
             }));
             const component = shallow(
-                <Component mediaId={mediaId} duplicateKey="ownProps" />
+                <Component videoId={videoId} duplicateKey="ownProps" />
             );
             expect(component.find(TestVideo).prop('duplicateKey')).toBe('ownProps');
         });
@@ -229,7 +229,7 @@ describe('video', () => {
             }), (stateProps, videoElProps, ownProps) =>
                 Object.assign({}, ownProps, stateProps, videoElProps));
             const component = shallow(
-                <Component mediaId={mediaId} duplicateKey="ownProps" />
+                <Component videoId={videoId} duplicateKey="ownProps" />
             );
             expect(component.find(TestVideo).prop('duplicateKey')).toBe('mapVideoElToProps');
         });
