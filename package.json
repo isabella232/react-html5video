@@ -11,7 +11,7 @@
     "preinstall:demo": "npm run build",
     "install:demo": "cd demo && npm i",
     "i:demo": "npm run install:demo",
-    "test": "jest --env=jsdom",
+    "test": "jest ./src/** --env=jsdom",
     "test:watch": "npm run test -- --watch",
     "build": "webpack --display-error-details",
     "build:demo": "cd demo && webpack",

@@ -1,8 +1,10 @@
-/**
+/* eslint-disable */
+
+ /**
  * This is a HoC that finds a single
- * <video> in a component and makes
- * all its PROPERTIES available as props.
- */
+* <video> in a component and makes
+* all its PROPERTIES available as props.
+*/
 import React, { Component } from 'react';
 import { findDOMNode } from 'react-dom';
 import {
@@ -31,24 +33,27 @@ export default (
     BaseComponent,
     mapStateToProps = defaultMapStateToProps,
     mapVideoElToProps = defaultMapVideoElToProps,
-    mergeProps = defaultMergeProps
+    mergeProps = defaultMergeProps,
 ) => class Video extends Component {
         constructor(props) {
             super(props);
             this.updateState = this.updateState.bind(this);
+            this.getElementAndUpdateState = this.getElementAndUpdateState.bind(this);
             this.state = {};
         }
 
         updateState() {
+            if (!this.videoEl) return;
             this.setState(
                 PROPERTIES.reduce((p, c) => {
-                    p[c] = this.videoEl && this.videoEl[c];
+                    p[c] = this.videoEl[c];
                     return p;
                 }, {})
             );
         }
 
         bindEventsToUpdateState() {
+            if (!this.videoEl) return;
             EVENTS.forEach(event => {
                 this.videoEl.addEventListener(event.toLowerCase(), this.updateState);
             });
@@ -56,7 +61,7 @@ export default (
             TRACKEVENTS.forEach(event => {
                 // TODO: JSDom does not have this method on
                 // `textTracks`. Investigate so we can test this without this check.
-                this.videoEl.textTracks.addEventListener
+                this.videoEl.textTracks && this.videoEl.textTracks.addEventListener
                 && this.videoEl.textTracks.addEventListener(event.toLowerCase(), this.updateState);
             });
 
@@ -66,26 +71,26 @@ export default (
             // to force an update.
             // https://developer.mozilla.org/en-US/docs/Web/Guide/HTML/Using_HTML5_audio_and_video
             const sources = this.videoEl.getElementsByTagName('source');
-            if (sources.length) {
+            if (sources && sources.length) {
                 const lastSource = sources[sources.length - 1];
                 lastSource.addEventListener('error', this.updateState);
             }
         }
 
         unbindEvents() {
+            if (!this.videoEl) return;
             EVENTS.forEach(event => {
                 this.videoEl.removeEventListener(event.toLowerCase(), this.updateState);
             });
-
             TRACKEVENTS.forEach(event => {
                 // TODO: JSDom does not have this method on
                 // `textTracks`. Investigate so we can test this without this check.
-                this.videoEl.textTracks.removeEventListener
+                this.videoEl.textTracks && this.videoEl.textTracks.removeEventListener
                 && this.videoEl.textTracks.removeEventListener(event.toLowerCase(), this.updateState);
             });
 
             const sources = this.videoEl.getElementsByTagName('source');
-            if (sources.length) {
+            if (sources && sources.length) {
                 const lastSource = sources[sources.length - 1];
                 lastSource.removeEventListener('error', this.updateState);
             }
@@ -95,15 +100,31 @@ export default (
             this.unbindEvents();
         }
 
-        // Stop `this.el` from being null briefly on every render,
+        // Stop `this.el` from being null briefly on every rendxwxer,
         // see: https://github.com/mderrick/react-html5video/pull/65
         setRef(el) {
             this.el = findDOMNode(el);
         }
 
         componentDidMount() {
-            this.videoEl = this.el.getElementsByTagName('video')[0];
-            this.bindEventsToUpdateState();
+            if (!this.props.videoId) return;
+            this.getElementAndUpdateState(this.props.videoId);
+        }
+
+        componentDidUpdate(lastProps) {
+            if (!this.props.videoId) return;
+            if (lastProps.videoId !== this.props.videoId) {
+                this.unbindEvents();
+                this.getElementAndUpdateState(this.props.videoId);
+            }
+        }
+
+        getElementAndUpdateState(elementId){
+            const videoEl = document.getElementById(elementId);
+            if (videoEl && (videoEl.nodeName === 'VIDEO' || videoEl.nodeName === 'AUDIO')) {
+                this.videoEl = videoEl;
+                this.bindEventsToUpdateState();
+            }
         }
 
         render() {
@@ -126,4 +147,4 @@ export default (
                 </div>
             );
         }
-    }
+}
