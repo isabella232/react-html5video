@@ -36,116 +36,116 @@ export default (
     mergeProps = defaultMergeProps,
     videoId
 ) => class Video extends Component {
-    constructor(props) {
-        super(props);
-        this.updateState = this.updateState.bind(this);
-        this.getElementAndUpdateState = this.getElementAndUpdateState.bind(this);
-        this.state = {};
-    }
-
-    updateState() {
-        if (!this.videoEl) return;
-        this.setState(
-            PROPERTIES.reduce((p, c) => {
-                p[c] = this.videoEl[c];
-                return p;
-            }, {})
-        );
-    }
-
-    bindEventsToUpdateState() {
-        if (!this.videoEl) return;
-        EVENTS.forEach(event => {
-            this.videoEl.addEventListener(event.toLowerCase(), this.updateState);
-        });
-
-        TRACKEVENTS.forEach(event => {
-            // TODO: JSDom does not have this method on
-            // `textTracks`. Investigate so we can test this without this check.
-            this.videoEl.textTracks && this.videoEl.textTracks.addEventListener
-            && this.videoEl.textTracks.addEventListener(event.toLowerCase(), this.updateState);
-        });
-
-        // If <source> elements are used instead of a src attribute then
-        // errors for unsupported format do not bubble up to the <video>.
-        // Do this manually by listening to the last <source> error event
-        // to force an update.
-        // https://developer.mozilla.org/en-US/docs/Web/Guide/HTML/Using_HTML5_audio_and_video
-        const sources = this.videoEl.getElementsByTagName('source');
-        if (sources && sources.length) {
-            const lastSource = sources[sources.length - 1];
-            lastSource.addEventListener('error', this.updateState);
+        constructor(props) {
+            super(props);
+            this.updateState = this.updateState.bind(this);
+            this.getElementAndUpdateState = this.getElementAndUpdateState.bind(this);
+            this.state = {};
         }
-    }
 
-    unbindEvents() {
-        if (!this.videoEl) return;
-        EVENTS.forEach(event => {
-            this.videoEl.removeEventListener(event.toLowerCase(), this.updateState);
-        });
-        TRACKEVENTS.forEach(event => {
-            // TODO: JSDom does not have this method on
-            // `textTracks`. Investigate so we can test this without this check.
-            this.videoEl.textTracks && this.videoEl.textTracks.removeEventListener
-            && this.videoEl.textTracks.removeEventListener(event.toLowerCase(), this.updateState);
-        });
-
-        const sources = this.videoEl.getElementsByTagName('source');
-        if (sources && sources.length) {
-            const lastSource = sources[sources.length - 1];
-            lastSource.removeEventListener('error', this.updateState);
+        updateState() {
+            if (!this.videoEl) return;
+            this.setState(
+                PROPERTIES.reduce((p, c) => {
+                    p[c] = this.videoEl[c];
+                    return p;
+                }, {})
+            );
         }
-    }
 
-    componentWillUnmount() {
-        this.unbindEvents();
-    }
+        bindEventsToUpdateState() {
+            if (!this.videoEl) return;
+            EVENTS.forEach(event => {
+                this.videoEl.addEventListener(event.toLowerCase(), this.updateState);
+            });
 
-    // Stop `this.el` from being null briefly on every rendxwxer,
-    // see: https://github.com/mderrick/react-html5video/pull/65
-    setRef(el) {
-        this.el = findDOMNode(el);
-    }
+            TRACKEVENTS.forEach(event => {
+                // TODO: JSDom does not have this method on
+                // `textTracks`. Investigate so we can test this without this check.
+                this.videoEl.textTracks && this.videoEl.textTracks.addEventListener
+                && this.videoEl.textTracks.addEventListener(event.toLowerCase(), this.updateState);
+            });
 
-    componentDidMount() {
-        if (!this.props.mediaId) return;
-        this.getElementAndUpdateState(this.props.mediaId);
-    }
+            // If <source> elements are used instead of a src attribute then
+            // errors for unsupported format do not bubble up to the <video>.
+            // Do this manually by listening to the last <source> error event
+            // to force an update.
+            // https://developer.mozilla.org/en-US/docs/Web/Guide/HTML/Using_HTML5_audio_and_video
+            const sources = this.videoEl.getElementsByTagName('source');
+            if (sources && sources.length) {
+                const lastSource = sources[sources.length - 1];
+                lastSource.addEventListener('error', this.updateState);
+            }
+        }
 
-    componentDidUpdate(lastProps) {
-        if (!this.props.mediaId) return;
-        if (lastProps.mediaId !== this.props.mediaId) {
+        unbindEvents() {
+            if (!this.videoEl) return;
+            EVENTS.forEach(event => {
+                this.videoEl.removeEventListener(event.toLowerCase(), this.updateState);
+            });
+            TRACKEVENTS.forEach(event => {
+                // TODO: JSDom does not have this method on
+                // `textTracks`. Investigate so we can test this without this check.
+                this.videoEl.textTracks && this.videoEl.textTracks.removeEventListener
+                && this.videoEl.textTracks.removeEventListener(event.toLowerCase(), this.updateState);
+            });
+
+            const sources = this.videoEl.getElementsByTagName('source');
+            if (sources && sources.length) {
+                const lastSource = sources[sources.length - 1];
+                lastSource.removeEventListener('error', this.updateState);
+            }
+        }
+
+        componentWillUnmount() {
             this.unbindEvents();
+        }
+
+        // Stop `this.el` from being null briefly on every rendxwxer,
+        // see: https://github.com/mderrick/react-html5video/pull/65
+        setRef(el) {
+            this.el = findDOMNode(el);
+        }
+
+        componentDidMount() {
+            if (!this.props.mediaId) return;
             this.getElementAndUpdateState(this.props.mediaId);
         }
-    }
 
-    getElementAndUpdateState(elementId){
-        const videoEl = document.getElementById(elementId);
-        if (videoEl && (videoEl.nodeName === 'VIDEO' || videoEl.nodeName === 'AUDIO')) {
-            this.videoEl = videoEl;
-            this.bindEventsToUpdateState();
+        componentDidUpdate(lastProps) {
+            if (!this.props.mediaId) return;
+            if (lastProps.mediaId !== this.props.mediaId) {
+                this.unbindEvents();
+                this.getElementAndUpdateState(this.props.mediaId);
+            }
         }
-    }
 
-    render() {
-        const stateProps = mapStateToProps(
-            this.state,
-            this.props
-        );
-        const videoElProps = mapVideoElToProps(
-            this.videoEl,
-            this.state,
-            this.props
-        );
-        return (
-            <div ref={this.setRef.bind(this)}>
-                <BaseComponent
-                    {...mergeProps(
-                        stateProps,
-                        videoElProps,
-                        this.props)} />
-            </div>
-        );
-    }
+        getElementAndUpdateState(elementId){
+            const videoEl = document.getElementById(elementId);
+            if (videoEl && (videoEl.nodeName === 'VIDEO' || videoEl.nodeName === 'AUDIO')) {
+                this.videoEl = videoEl;
+                this.bindEventsToUpdateState();
+            }
+        }
+
+        render() {
+            const stateProps = mapStateToProps(
+                this.state,
+                this.props
+            );
+            const videoElProps = mapVideoElToProps(
+                this.videoEl,
+                this.state,
+                this.props
+            );
+            return (
+                <div ref={this.setRef.bind(this)}>
+                    <BaseComponent
+                        {...mergeProps(
+                            stateProps,
+                            videoElProps,
+                            this.props)} />
+                </div>
+            );
+        }
 }
