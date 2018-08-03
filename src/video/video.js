@@ -124,6 +124,8 @@ export default (
             if (videoEl && (videoEl.nodeName === 'VIDEO' || videoEl.nodeName === 'AUDIO')) {
                 this.videoEl = videoEl;
                 this.bindEventsToUpdateState();
+                this.updateState();
+                this.videoEl.load();
             }
         }
 

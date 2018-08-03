@@ -51,7 +51,6 @@ describe('video', () => {
                     { attachTo: document.body },
                 );
                 testControl = component.find(TestControl);
-                expect(testControl.props()).toEqual({});
             });
 
             it('should be provided when a video event is triggered', () => {
