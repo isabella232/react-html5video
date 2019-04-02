@@ -57,8 +57,8 @@
     "testRegex": "(/__tests__/.*|\\.(test|spec))\\.(js|jsx)$"
   },
   "peerDependencies": {
-    "react": ">=15.0.0",
-    "react-dom": "^15.4.1"
+    "react": ">=15",
+    "react-dom": ">=15"
   },
   "devDependencies": {
     "babel": "^6.5.2",
