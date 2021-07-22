@@ -1,9 +1,9 @@
-import React from "react";
-import { mount, shallow } from "enzyme";
-import video from "./video";
-import { EVENTS } from "./constants";
+import React from 'react';
+import { mount, shallow } from 'enzyme';
+import video from './video';
+import { EVENTS } from './constants';
 
-const videoId = "test-video";
+const videoId = 'test-video';
 
 const TestControl = ({ duration }) => {
     return <div>{duration}</div>;
@@ -24,7 +24,7 @@ const TestVideo = ({ video, ...restProps }) => {
     );
 };
 
-describe("video", () => {
+describe('video', () => {
     let Component;
     let component;
 
@@ -32,12 +32,12 @@ describe("video", () => {
         Component = video(TestVideo);
     });
 
-    describe("the wrapped component", () => {
+    describe('the wrapped component', () => {
         beforeEach(() => {
             component = mount(<Component videoId={videoId} autoPlay />);
         });
 
-        describe("HTMLVideoElement API as props", () => {
+        describe('HTMLVideoElement API as props', () => {
             let testControl;
             beforeEach(() => {
                 component = mount(<Component videoId={videoId} autoPlay />, {
@@ -46,12 +46,12 @@ describe("video", () => {
                 testControl = component.find(TestControl);
             });
 
-            it("should be provided when a video event is triggered", () => {
-                component.find("video").node.dispatchEvent(new Event("play"));
+            it('should be provided when a video event is triggered', () => {
+                component.find('video').node.dispatchEvent(new Event('play'));
             });
 
-            it("should be provided when an error occurs on last source element", () => {
-                component.find("source").node.dispatchEvent(new Event("error"));
+            it('should be provided when an error occurs on last source element', () => {
+                component.find('source').node.dispatchEvent(new Event('error'));
             });
 
             afterEach(() => {
@@ -60,7 +60,7 @@ describe("video", () => {
                     controller: undefined,
                     autoPlay: undefined,
                     controls: false,
-                    currentSrc: "",
+                    currentSrc: '',
                     currentTime: 0,
                     defaultMuted: false,
                     defaultPlaybackRate: 1,
@@ -73,23 +73,23 @@ describe("video", () => {
                     networkState: 0,
                     paused: true,
                     playbackRate: 1,
-                    preload: "",
+                    preload: '',
                     readyState: 0,
                     seeking: false,
-                    src: "",
+                    src: '',
                     startDate: undefined,
                     volume: 1,
                 });
             });
         });
 
-        it("should remove all event listeners from the video element when unmounted", () => {
+        it('should remove all event listeners from the video element when unmounted', () => {
             const removeEventListenerSpy = jest.fn();
             component = mount(<Component videoId={videoId} autoPlay />, {
                 attachTo: document.body,
             });
             const updateState = component.instance().updateState;
-            component.find("video").node.removeEventListener =
+            component.find('video').node.removeEventListener =
                 removeEventListenerSpy;
             expect(removeEventListenerSpy).not.toHaveBeenCalled();
             component.unmount();
@@ -107,18 +107,18 @@ describe("video", () => {
                 attachTo: document.body,
             });
             const updateState = component.instance().updateState;
-            component.find("source").node.removeEventListener =
+            component.find('source').node.removeEventListener =
                 removeEventListenerSpy;
             expect(removeEventListenerSpy).not.toHaveBeenCalled();
             component.unmount();
             expect(removeEventListenerSpy).toHaveBeenCalledWith(
-                "error",
+                'error',
                 updateState
             );
         });
     });
 
-    describe("mapping to props", () => {
+    describe('mapping to props', () => {
         let videoEl = {
             play: jest.fn(),
             removeEventListener: jest.fn(),
@@ -133,27 +133,27 @@ describe("video", () => {
             component.instance().forceUpdate();
         });
 
-        it("returns a component with it's ownProps", () => {
-            expect(component.find(TestVideo).prop("autoPlay")).toBe(true);
+        it('returns a component with it\'s ownProps', () => {
+            expect(component.find(TestVideo).prop('autoPlay')).toBe(true);
         });
 
-        it("returns a component with a videoEl prop", () => {
-            expect(component.find(TestVideo).prop("videoEl")).toBe(videoEl);
+        it('returns a component with a videoEl prop', () => {
+            expect(component.find(TestVideo).prop('videoEl')).toBe(videoEl);
         });
 
-        it("returns a component with all of its state on the `video` prop", () => {
+        it('returns a component with all of its state on the `video` prop', () => {
             const state = {
-                html5: "1",
+                html5: '1',
                 dom: 2,
                 properties: function () {
                     return 3;
                 },
             };
             component.setState(state);
-            expect(component.find(TestVideo).prop("video")).toEqual(state);
+            expect(component.find(TestVideo).prop('video')).toEqual(state);
         });
 
-        it("can customise the mapping of props using mapToProps", () => {
+        it('can customise the mapping of props using mapToProps', () => {
             const Component = video(TestVideo, (state, ownProps) => {
                 return {
                     state,
@@ -164,13 +164,13 @@ describe("video", () => {
             component.setState({
                 paused: true,
             });
-            expect(component.find(TestVideo).prop("state").paused).toBe(true);
-            expect(component.find(TestVideo).prop("ownProps").autoPlay).toBe(
+            expect(component.find(TestVideo).prop('state').paused).toBe(true);
+            expect(component.find(TestVideo).prop('ownProps').autoPlay).toBe(
                 true
             );
         });
 
-        it("can map videoEl to props for creating custom API methods", () => {
+        it('can map videoEl to props for creating custom API methods', () => {
             const Component = video(
                 TestVideo,
                 undefined,
@@ -187,52 +187,52 @@ describe("video", () => {
             );
             component.instance().videoEl = videoEl;
             component.instance().forceUpdate();
-            component.find(TestVideo).prop("togglePlay")();
-            expect(videoEl.play).toHaveBeenCalledWith("testValue");
+            component.find(TestVideo).prop('togglePlay')();
+            expect(videoEl.play).toHaveBeenCalledWith('testValue');
         });
 
-        it("allows mapVideoElToProps to take precedence over mapStateToProps", () => {
+        it('allows mapVideoElToProps to take precedence over mapStateToProps', () => {
             const Component = video(
                 TestVideo,
                 () => ({
-                    duplicateKey: "mapStateToProps",
+                    duplicateKey: 'mapStateToProps',
                 }),
                 () => ({
-                    duplicateKey: "mapVideoElToProps",
+                    duplicateKey: 'mapVideoElToProps',
                 })
             );
             const component = shallow(<Component videoId={videoId} />);
-            expect(component.find(TestVideo).prop("duplicateKey")).toBe(
-                "mapVideoElToProps"
+            expect(component.find(TestVideo).prop('duplicateKey')).toBe(
+                'mapVideoElToProps'
             );
         });
 
-        it("allows ownProps to take precedence over mapVideoElToProps and mapStateToProps", () => {
+        it('allows ownProps to take precedence over mapVideoElToProps and mapStateToProps', () => {
             const Component = video(
                 TestVideo,
                 () => ({
-                    duplicateKey: "mapStateToProps",
+                    duplicateKey: 'mapStateToProps',
                 }),
                 () => ({
-                    duplicateKey: "mapVideoElToProps",
+                    duplicateKey: 'mapVideoElToProps',
                 })
             );
             const component = shallow(
                 <Component videoId={videoId} duplicateKey="ownProps" />
             );
-            expect(component.find(TestVideo).prop("duplicateKey")).toBe(
-                "ownProps"
+            expect(component.find(TestVideo).prop('duplicateKey')).toBe(
+                'ownProps'
             );
         });
 
-        it("allows cusomtisation of merging ownProps, mapVideoElToProps and mapStateToProps to change the merging precedence", () => {
+        it('allows cusomtisation of merging ownProps, mapVideoElToProps and mapStateToProps to change the merging precedence', () => {
             const Component = video(
                 TestVideo,
                 () => ({
-                    duplicateKey: "mapStateToProps",
+                    duplicateKey: 'mapStateToProps',
                 }),
                 () => ({
-                    duplicateKey: "mapVideoElToProps",
+                    duplicateKey: 'mapVideoElToProps',
                 }),
                 (stateProps, videoElProps, ownProps) =>
                     Object.assign({}, ownProps, stateProps, videoElProps)
@@ -240,8 +240,8 @@ describe("video", () => {
             const component = shallow(
                 <Component videoId={videoId} duplicateKey="ownProps" />
             );
-            expect(component.find(TestVideo).prop("duplicateKey")).toBe(
-                "mapVideoElToProps"
+            expect(component.find(TestVideo).prop('duplicateKey')).toBe(
+                'mapVideoElToProps'
             );
         });
     });
