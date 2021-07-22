@@ -1,6 +1,6 @@
 {
   "name": "@frameio/react-html5video",
-  "version": "2.6.2",
+  "version": "2.6.4",
   "description": "A customizeable HTML5 Video",
   "main": "dist",
   "files": [
