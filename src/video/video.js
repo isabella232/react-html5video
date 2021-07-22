@@ -82,6 +82,7 @@ export default (
 
         unbindEvents() {
             if (!this.videoEl) return;
+
             EVENTS.forEach((event) => {
                 this.videoEl.removeEventListener(
                     event.toLowerCase(),
@@ -126,7 +127,9 @@ export default (
 
             const hasIdChanged = lastProps.videoId !== this.props.videoId;
             const videoElIdDoesNotMatchVideoId =
-                this.videoEl && this.videoEl.id !== this.props.videoId;
+                this.videoEl &&
+                this.videoEl.id &&
+                this.videoEl.id !== this.props.videoId;
 
             if (hasIdChanged || videoElIdDoesNotMatchVideoId) {
                 this.unbindEvents();
